@@ -31,7 +31,7 @@ class i2c_txn extends uvm_object;
   
   function new (string name = "");
     super.new(name);
-    `uvm_info(this.get_name(),$sformatf("Setting UVM TXN STREAM WIDTH to %0d for %0d BIT transaction",STREAM_WIDTH, ADDRESS_WIDTH),UVM_NONE)
+    `uvm_info(this.get_name(),$sformatf("Setting UVM TXN STREAM WIDTH to %0d for %0d BIT transaction",STREAM_WIDTH, ADDRESS_WIDTH),UVM_DEBUG)
 
   endfunction
 endclass

@@ -47,42 +47,42 @@ class uvm_i2c_driver extends uvm_driver #(i2c_req_transfer);
   endtask
   
   task set_read();
-    `uvm_info(this.get_name(), "Setting I2C module read", UVM_NONE)
+    `uvm_info(this.get_name(), "Setting I2C module read", UVM_DEBUG)
      i2c_vif.read_write = 1;            //read operation
   endtask
   
   task set_write();
-    `uvm_info(this.get_name(), "Setting I2C module write", UVM_NONE)
+    `uvm_info(this.get_name(), "Setting I2C module write", UVM_DEBUG)
      i2c_vif.read_write = 0;            //write operation
   endtask
   
   task set_reg_address(int address);
-    `uvm_info(this.get_name(), "Setting I2C module reg address", UVM_NONE)
+    `uvm_info(this.get_name(), "Setting I2C module reg address", UVM_DEBUG)
     i2c_vif.register_address = address; //8'h00; //set client register address
   endtask
   
   task set_write_data(int data);
-    `uvm_info(this.get_name(), "Setting I2C module write data", UVM_NONE)
+    `uvm_info(this.get_name(), "Setting I2C module write data", UVM_DEBUG)
     i2c_vif.mosi_data = data;//8'hAC;
   endtask
   
   task set_device_address(int address);
-    `uvm_info(this.get_name(), "Setting I2C module device address", UVM_NONE)
+    `uvm_info(this.get_name(), "Setting I2C module device address", UVM_DEBUG)
      i2c_vif.device_address = address;//7'b001_0001;  //slave address
   endtask
   
   task set_divider();
-    `uvm_info(this.get_name(), "Setting I2C module set divider", UVM_NONE)
+    `uvm_info(this.get_name(), "Setting I2C module set divider", UVM_DEBUG)
     i2c_vif.divider = 16'h00EA;//16'hFFFF;     //divider value for i2c serial clock
   endtask
   
   task master_enable();
-    `uvm_info(this.get_name(), "Setting I2C module master enable", UVM_NONE)
+    `uvm_info(this.get_name(), "Setting I2C module master enable", UVM_DEBUG)
     i2c_vif.enable= 1;
   endtask
   
   task master_disable();
-    `uvm_info(this.get_name(), "Setting I2C module master disable", UVM_NONE)
+    `uvm_info(this.get_name(), "Setting I2C module master disable", UVM_DEBUG)
     i2c_vif.enable= 0;
   endtask
   
@@ -100,7 +100,7 @@ class uvm_i2c_driver extends uvm_driver #(i2c_req_transfer);
         
     task write_data(bit [ADDRESS_WIDTH-1:0] device_address, bit [REGISTER_WIDTH-1:0] address,bit [DATA_WIDTH-1:0]    data);
       `uvm_info(this.get_name(), $sformatf(" Writing value 0x%0h to address 0x%1h",data,address), UVM_NONE);
-    $display("Configuring master");
+      `uvm_info(this.get_name(),"Configuring master",UVM_NONE);
     wait_tb_clock();
     set_write();
     set_reg_address(address);//8'h00);
@@ -113,18 +113,18 @@ class uvm_i2c_driver extends uvm_driver #(i2c_req_transfer);
     end
     set_divider();
     wait_tb_clock();
-    $display("Enabling master");
+      `uvm_info(this.get_name(),"Enabling master",UVM_NONE);
     master_enable();
     wait_posedge_busy();
-    $display("Master has started writing");
+      `uvm_info(this.get_name(),"Master has started writing",UVM_NONE);
     master_disable();
     wait_negedge_busy();
-    $display("Master has finsihed writing");
+      `uvm_info(this.get_name(),"Master has finsihed writing",UVM_NONE);
   endtask
   
     task read_data(bit [ADDRESS_WIDTH-1:0] device_address, bit [REGISTER_WIDTH-1:0] address,bit [DATA_WIDTH-1:0]    data);
     `uvm_info(this.get_name(), $sformatf("Reading from address 0x%0h",address), UVM_NONE);
-    $display("Configuring master");
+      `uvm_info(this.get_name(),"Configuring master",UVM_NONE);
     wait_tb_clock();
     set_read();
     set_reg_address(address);//8'h00);
@@ -137,13 +137,13 @@ class uvm_i2c_driver extends uvm_driver #(i2c_req_transfer);
     end
     set_divider();
     wait_tb_clock();
-    $display("Enabling master");
+      `uvm_info(this.get_name(),"Enabling master",UVM_NONE);
     master_enable();
     wait_posedge_busy();
-    $display("Master has started reading");
+      `uvm_info(this.get_name(),"Master has started reading",UVM_NONE);
     master_disable();
     wait_negedge_busy();
-    $display("Master has finsihed reading");
+      `uvm_info(this.get_name(),"Master has finsihed reading",UVM_NONE);
   	//$display("data read 0x%0h",i2c_tb_env0.i2c_vif.miso_data);
   endtask
     

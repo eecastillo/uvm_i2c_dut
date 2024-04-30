@@ -51,7 +51,7 @@ class uvm_i2c_client extends uvm_driver #(i2c_req_transfer);
       `uvm_fatal(get_name(), "Failed to get i2c from config_db")
       reset();
     define_device_address();
-    `uvm_info(this.get_name(), "UVM I2C BFM memory is initialized", UVM_NONE)
+    `uvm_info(this.get_name(), "UVM I2C BFM memory is initialized", UVM_DEBUG)
   endfunction
   
   task define_device_address();
@@ -67,7 +67,7 @@ class uvm_i2c_client extends uvm_driver #(i2c_req_transfer);
     super.main_phase(phase);
    // forever begin
       //seq_item_port.get_next_item(req);
-      `uvm_info(this.get_name(), "UVM CLIENT I2C BFM MAIN PHASE", UVM_NONE)
+    `uvm_info(this.get_name(), "UVM CLIENT I2C BFM MAIN PHASE", UVM_DEBUG)
       fork
           shift_register();
           compare_address();
@@ -160,7 +160,7 @@ class uvm_i2c_client extends uvm_driver #(i2c_req_transfer);
         sta   = #1 1'b1;
         d_sta = #1 1'b0;
         sto   = #1 1'b0;
-          `uvm_info(this.get_name(),"Start condition detected by I2C Client", UVM_NONE)
+          `uvm_info(this.get_name(),"Start condition detected by I2C Client", UVM_DEBUG)
         end
       else
         sta = #1 1'b0;
@@ -182,7 +182,7 @@ class uvm_i2c_client extends uvm_driver #(i2c_req_transfer);
         begin
            sta = #1 1'b0;
            sto = #1 1'b1;
-          `uvm_info(this.get_name(), "Stop condition detected by I2C Client", UVM_NONE)
+          `uvm_info(this.get_name(), "Stop condition detected by I2C Client", UVM_DEBUG)
         end
       else
         sto = #1 1'b0;
@@ -221,20 +221,17 @@ class uvm_i2c_client extends uvm_driver #(i2c_req_transfer);
                         sda_o = #1 1'b0; // generate i2c_ack
 
                         #2;
-                        if(debug && rw)
-                          $display("DEBUG i2c_slave; command byte received (read) at %t", $time);
-                        if(debug && !rw)
-                          $display("DEBUG i2c_slave; command byte received (write) at %t", $time);
+                        if(rw)
+                          `uvm_info(this.get_name(),$sformatf("DEBUG i2c_slave; command byte received (read) at %t", $time),UVM_DEBUG);
+                        if(!rw)
+                          `uvm_info(this.get_name(),$sformatf("DEBUG i2c_slave; command byte received (write) at %t", $time),UVM_DEBUG);
 
                         if(rw)
                           begin
                               mem_do = #1 mem[mem_adr];
 
-                              if(debug)
-                                begin
-                                  #2 $display("DEBUG i2c_slave; 1 data block read %x from address %x (1)", mem_do, mem_adr);
-                                    #2 $display("DEBUG i2c_slave; memcheck [0]=%x, [1]=%x, [2]=%x", mem[4'h0], mem[4'h1], mem[4'h2]);
-                                end
+                            #2 `uvm_info(this.get_name(),$sformatf("DEBUG i2c_slave; 1 data block read %x from address %x (1)", mem_do, mem_adr),UVM_DEBUG);
+                            #2 `uvm_info(this.get_name(),$sformatf("DEBUG i2c_slave; memcheck [0]=%x, [1]=%x, [2]=%x", mem[4'h0], mem[4'h1], mem[4'h2]),UVM_DEBUG);
                           end
                     end
 
@@ -258,8 +255,7 @@ class uvm_i2c_client extends uvm_driver #(i2c_req_transfer);
                         mem_adr = #1 sr; // store memory address
                         sda_o =  #1 !(sr <= 15); // generate i2c_ack, for valid address
 
-                        if(debug)
-                          #1 $display("DEBUG i2c_slave; address received. adr=%x, ack=%b", sr, sda_o);
+                      #1 `uvm_info(this.get_name(),$sformatf("DEBUG i2c_slave; address received. adr=%x, ack=%b", sr, sda_o),UVM_DEBUG);
                     end
 
                 gma_ack:
@@ -283,16 +279,14 @@ class uvm_i2c_client extends uvm_driver #(i2c_req_transfer);
                               begin
                                   #3 mem_do = mem[mem_adr];
 
-                                  if(debug)
-                                    #5 $display("DEBUG i2c_slave; 2 data block read %x from address %x (2)", mem_do, mem_adr);
+                                #5 `uvm_info(this.get_name(),$sformatf("i2c_slave; 2 data block read %x from address %x (2)", mem_do, mem_adr),UVM_NONE);
                               end
 
                             if(!rw)
                               begin
                                   mem[ mem_adr[3:0] ] = #1 sr; // store data in memory
 
-                                  if(debug)
-                                    #2 $display("DEBUG i2c_slave; data block write %x to address %x", sr, mem_adr);
+                                #2 `uvm_info(this.get_name(),$sformatf("i2c_slave; data block write %x to address %x", sr, mem_adr),UVM_NONE);
                               end
                         end
                   end
