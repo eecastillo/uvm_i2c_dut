@@ -24,7 +24,7 @@ parameter  DATA_WIDTH          =   `MY_DATA_WIDTH;
 parameter  REGISTER_WIDTH      =   8;
 parameter  ADDRESS_WIDTH       =   `MY_ADDRESS_WIDTH;
 parameter STREAM_WIDTH = (ADDRESS_WIDTH == 10 || DATA_WIDTH == 16) ? 54:(ADDRESS_WIDTH == 7) ? 35:  0;
-parameter  MEM_SIZE			   =   4;
+parameter  MEM_SIZE			   =   8;
 
 `include "case_000.svh"
 `include "i2c_client.sv"

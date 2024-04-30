@@ -1,7 +1,6 @@
 class uvm_i2c_scoreboard extends uvm_scoreboard;
   uvm_blocking_put_imp #(i2c_txn, uvm_i2c_scoreboard) i2c_scbd_put_export;
   //logic [DATA_WIDTH-1:0] mem_ref [(2**REGISTER_WIDTH)-1:0];
- // logic [34:0] dataframe_ref;
   bit ACK_VALUE = 1'b0;
   bit NACK_VALUE = 1'b1;
   parameter TEN_BIT_HIGH = 5'b11110;
@@ -23,7 +22,7 @@ class uvm_i2c_scoreboard extends uvm_scoreboard;
   function void put(i2c_txn txn);
     txn.print(uvm_default_line_printer);
     gen_i2c_ref(txn.device_address,txn.read_write,txn.register_address,txn.mosi_data, txn.miso_data);
-    check_i2c(txn);//txn.send_stream);
+    check_i2c(txn);
   endfunction
   
     logic read_write;
@@ -31,7 +30,7 @@ class uvm_i2c_scoreboard extends uvm_scoreboard;
   	logic [REGISTER_WIDTH-1:0] register_address;
   	logic [ADDRESS_WIDTH-1:0] device_address;
   
-    function void gen_i2c_ref(logic [ADDRESS_WIDTH-1:0] device_address, logic read_write, logic [REGISTER_WIDTH-1:0] register_address, logic [DATA_WIDTH-1:0] mosi_data, logic [DATA_WIDTH-1:0] miso_data);
+    virtual function void gen_i2c_ref(logic [ADDRESS_WIDTH-1:0] device_address, logic read_write, logic [REGISTER_WIDTH-1:0] register_address, logic [DATA_WIDTH-1:0] mosi_data, logic [DATA_WIDTH-1:0] miso_data);
       i2c_txn_ref = i2c_txn::type_id::create("i2c_txn_ref");
     //WRITE REFERENCE SEQUENCE
     if (read_write==0) begin
@@ -77,9 +76,7 @@ class uvm_i2c_scoreboard extends uvm_scoreboard;
     end
   endfunction
   
-  function void check_i2c(i2c_txn real_i2c_txn);//logic [34:0] send_stream);
-    //if (read_write==0)begin
-    //  if (send_stream != dataframe_ref) 
+  function void check_i2c(i2c_txn real_i2c_txn);
     if(real_i2c_txn.compare(i2c_txn_ref))
       `uvm_info(this.get_name(), $sformatf("reference=%0b match actual=%0b",i2c_txn_ref.send_stream, real_i2c_txn.send_stream), UVM_NONE)
       else
@@ -95,6 +92,44 @@ class uvm_i2c_scoreboard extends uvm_scoreboard;
         $display("[I1C-CHK]: miso_data_ref=0x%0h match miso_data_real=0x%1h", mem_ref[register_address], miso_data_real);
       end
     end*/
+  endfunction
+endclass
+        
+class uvm_i2c_scoreboard_general_call extends uvm_i2c_scoreboard;
+  `uvm_component_utils(uvm_i2c_scoreboard_general_call)
+  
+  function new (string name, uvm_component parent);
+    super.new(name, parent);
+  endfunction
+  
+  function void build_phase(uvm_phase phase);
+    super.build_phase(phase);
+    
+    `uvm_info(this.get_name(), "UVM I2C Scoreboard GENERAL CALL Alive", UVM_NONE)
+  endfunction
+  
+  virtual function void gen_i2c_ref(logic [ADDRESS_WIDTH-1:0] device_address, logic read_write, logic [REGISTER_WIDTH-1:0] register_address, logic [DATA_WIDTH-1:0] mosi_data, logic [DATA_WIDTH-1:0] miso_data);
+    i2c_txn_ref = i2c_txn::type_id::create("i2c_txn_ref");
+    i2c_txn_ref.send_stream = {8'b0,ACK_VALUE, 8'b00000100,ACK_VALUE};
+  endfunction
+endclass
+
+class uvm_i2c_scoreboard_software_reset extends uvm_i2c_scoreboard;
+  `uvm_component_utils(uvm_i2c_scoreboard_software_reset)
+  
+  function new (string name, uvm_component parent);
+    super.new(name, parent);
+  endfunction
+  
+  function void build_phase(uvm_phase phase);
+    super.build_phase(phase);
+    
+    `uvm_info(this.get_name(), "UVM I2C Scoreboard SOFTWARE RESET Alive", UVM_NONE)
+  endfunction
+  
+  virtual function void gen_i2c_ref(logic [ADDRESS_WIDTH-1:0] device_address, logic read_write, logic [REGISTER_WIDTH-1:0] register_address, logic [DATA_WIDTH-1:0] mosi_data, logic [DATA_WIDTH-1:0] miso_data);
+    i2c_txn_ref = i2c_txn::type_id::create("i2c_txn_ref");
+    i2c_txn_ref.send_stream = {8'b0,ACK_VALUE, 8'b00000110,ACK_VALUE};
   endfunction
 endclass
 

@@ -95,6 +95,10 @@ class uvm_i2c_client extends uvm_driver #(i2c_req_transfer);
     mem[1] = 8'd06;
     mem[2] = 8'd07;
     mem[3] = 8'd08;
+    mem[4] = 8'd09;
+    mem[5] = 8'd10;
+    mem[6] = 8'd11;
+    mem[7] = 8'd12;
   endtask
   
   task shift_register();

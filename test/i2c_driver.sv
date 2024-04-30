@@ -25,8 +25,8 @@ class uvm_i2c_driver extends uvm_driver #(i2c_req_transfer);
       req.print();
       
       case(req.seq_action)
-        READ_DATA			: read_data(req.address, req.data);
-        WRITE_DATA			: write_data(req.address, req.data);
+        READ_DATA			: read_data(req.device_address, req.address, req.data);
+        WRITE_DATA			: write_data(req.device_address, req.address, req.data);
       endcase
       
       seq_item_port.item_done();
@@ -98,7 +98,7 @@ class uvm_i2c_driver extends uvm_driver #(i2c_req_transfer);
     @(negedge i2c_vif.busy);
   endtask
         
-    task write_data(bit [REGISTER_WIDTH-1:0] address,bit [DATA_WIDTH-1:0]    data);
+    task write_data(bit [ADDRESS_WIDTH-1:0] device_address, bit [REGISTER_WIDTH-1:0] address,bit [DATA_WIDTH-1:0]    data);
       `uvm_info(this.get_name(), $sformatf(" Writing value 0x%0h to address 0x%1h",data,address), UVM_NONE);
     $display("Configuring master");
     wait_tb_clock();
@@ -106,7 +106,7 @@ class uvm_i2c_driver extends uvm_driver #(i2c_req_transfer);
     set_reg_address(address);//8'h00);
     set_write_data(data);//8'hAC);
     if(ADDRESS_WIDTH == 7)begin
-      set_device_address(7'b001_0001);
+      set_device_address(device_address);//7'b001_0001);
     end
     else if (ADDRESS_WIDTH == 10)begin
       set_device_address(10'b101001_0001);
@@ -122,7 +122,7 @@ class uvm_i2c_driver extends uvm_driver #(i2c_req_transfer);
     $display("Master has finsihed writing");
   endtask
   
-    task read_data(bit [REGISTER_WIDTH-1:0] address,bit [DATA_WIDTH-1:0]    data);
+    task read_data(bit [ADDRESS_WIDTH-1:0] device_address, bit [REGISTER_WIDTH-1:0] address,bit [DATA_WIDTH-1:0]    data);
     `uvm_info(this.get_name(), $sformatf("Reading from address 0x%0h",address), UVM_NONE);
     $display("Configuring master");
     wait_tb_clock();
@@ -130,7 +130,7 @@ class uvm_i2c_driver extends uvm_driver #(i2c_req_transfer);
     set_reg_address(address);//8'h00);
     set_write_data(data);
     if(ADDRESS_WIDTH == 7)begin
-      set_device_address(7'b001_0001);
+      set_device_address(device_address);//7'b001_0001);
     end
     else if (ADDRESS_WIDTH == 10)begin
       set_device_address(10'b101001_0001);

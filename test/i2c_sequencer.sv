@@ -3,12 +3,13 @@ typedef enum {READ_DATA, WRITE_DATA} i2c_seq_action;
 class i2c_req_transfer extends uvm_sequence_item;
 	rand i2c_seq_action seq_action;
   	rand bit [DATA_WIDTH-1:0] data;
-  rand bit [ADDRESS_WIDTH-1:0] address;
-  
+  rand bit [REGISTER_WIDTH-1:0] address;
+  rand bit [ADDRESS_WIDTH-1:0] device_address=7'b001_0001;
+
   constraint data_con {
   	solve seq_action before data;
     (seq_action == READ_DATA) -> data == 0;
-    address inside {[0:3]};
+    address inside {[0:MEM_SIZE-1]};
   }
   
  // extern constraint i2c_test_constraint;
@@ -17,6 +18,7 @@ class i2c_req_transfer extends uvm_sequence_item;
   `uvm_field_int(data, UVM_DEFAULT)
   `uvm_field_int(address, UVM_DEFAULT)
   `uvm_field_enum(i2c_seq_action, seq_action, UVM_DEFAULT)
+  `uvm_field_int(device_address, UVM_DEFAULT)
   `uvm_object_utils_end
   
   function new (string name="i2c_req_transfer");
