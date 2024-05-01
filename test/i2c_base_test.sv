@@ -5,13 +5,16 @@ class uvm_i2c_base_test extends uvm_test;
   uvm_i2c_sequence uvm_i2c_seq1;
 
   uvm_i2_client_env uvm_i2c_client_env0;
-  
+  uvm_i2c_client_agent_configuration client_cfg;
+
   function new (string name = "uvm_i2c_base_test", uvm_component parent = null);
     super.new(name, parent);
   endfunction
   
   function void build_phase(uvm_phase phase);
     super.build_phase(phase);
+    client_cfg = uvm_i2c_client_agent_configuration::type_id::create("client_cfg", this);
+    uvm_config_db#(uvm_i2c_client_agent_configuration)::set(this, "*", "uvm_i2c_client_agent_configuration", client_cfg);
     
     `uvm_info(this.get_name(), "UVM I2C Base Test Alive", UVM_NONE)
     
@@ -61,10 +64,15 @@ class uvm_i2c_base_test extends uvm_test;
     
     `uvm_info(this.get_name(), "Running run-reset phase", UVM_NONE)
     #10;
-    
     uvm_i2c_env0.uvm_i2c_agent0.uvm_i2c_drv0.reset();
-    uvm_i2c_client_env0.uvm_i2c_agent1.uvm_i2c_drv1.reset();
+    if(!uvm_config_db#(uvm_i2c_client_agent_configuration)::get(this,"*","uvm_i2c_client_agent_configuration",client_cfg))
+	begin
+      `uvm_fatal(this.get_name(),"Configuration object is not set properly")
+    end
     
+    if(client_cfg.active_or_passive == UVM_ACTIVE)begin
+	    uvm_i2c_client_env0.uvm_i2c_agent1.uvm_i2c_drv1.reset();
+    end
     `uvm_info(this.get_name(), "Ending run-reset phase", UVM_NONE)
     phase.drop_objection(this);    
   endtask

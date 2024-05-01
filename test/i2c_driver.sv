@@ -47,42 +47,42 @@ class uvm_i2c_driver extends uvm_driver #(i2c_req_transfer);
   endtask
   
   task set_read();
-    `uvm_info(this.get_name(), "Setting I2C module read", UVM_DEBUG)
+    `uvm_info(this.get_name(), "Setting I2C module read", UVM_HIGH)
      i2c_vif.read_write = 1;            //read operation
   endtask
   
   task set_write();
-    `uvm_info(this.get_name(), "Setting I2C module write", UVM_DEBUG)
+    `uvm_info(this.get_name(), "Setting I2C module write", UVM_HIGH)
      i2c_vif.read_write = 0;            //write operation
   endtask
   
   task set_reg_address(int address);
-    `uvm_info(this.get_name(), "Setting I2C module reg address", UVM_DEBUG)
+    `uvm_info(this.get_name(), "Setting I2C module reg address", UVM_HIGH)
     i2c_vif.register_address = address; //8'h00; //set client register address
   endtask
   
   task set_write_data(int data);
-    `uvm_info(this.get_name(), "Setting I2C module write data", UVM_DEBUG)
+    `uvm_info(this.get_name(), "Setting I2C module write data", UVM_HIGH)
     i2c_vif.mosi_data = data;//8'hAC;
   endtask
   
   task set_device_address(int address);
-    `uvm_info(this.get_name(), "Setting I2C module device address", UVM_DEBUG)
+    `uvm_info(this.get_name(), "Setting I2C module device address", UVM_HIGH)
      i2c_vif.device_address = address;//7'b001_0001;  //slave address
   endtask
   
   task set_divider();
-    `uvm_info(this.get_name(), "Setting I2C module set divider", UVM_DEBUG)
+    `uvm_info(this.get_name(), "Setting I2C module set divider", UVM_HIGH)
     i2c_vif.divider = 16'h00EA;//16'hFFFF;     //divider value for i2c serial clock
   endtask
   
   task master_enable();
-    `uvm_info(this.get_name(), "Setting I2C module master enable", UVM_DEBUG)
+    `uvm_info(this.get_name(), "Setting I2C module master enable", UVM_HIGH)
     i2c_vif.enable= 1;
   endtask
   
   task master_disable();
-    `uvm_info(this.get_name(), "Setting I2C module master disable", UVM_DEBUG)
+    `uvm_info(this.get_name(), "Setting I2C module master disable", UVM_HIGH)
     i2c_vif.enable= 0;
   endtask
   

@@ -231,51 +231,47 @@ class uvm_i2c_software_reset_test extends uvm_i2c_base_test;
   
 endclass : uvm_i2c_software_reset_test
 
-/*class i2c_rand_tests extends i2c_base_test;
-  function new(virtual i2c_if i2c_if);
-    super.new(i2c_if);
-    $display("Constructing data_rand test");
-  endfunction
-  virtual task run_test();
-    int scenarios = $urandom_range(0,3);
-    for(int i=0; i<scenarios; i++) begin
-      rand_write_data = $urandom_range(0,(2**DATA_WIDTH)-1);
-      rand_register_address = $urandom_range(0,3);
-      i2c_tb_env0.env_run();
-      write_data(rand_write_data,rand_register_address);
-      read_data(rand_register_address);
-    end
-    #500;
-  endtask
-endclass
 
-class i2c_serial_test extends i2c_base_test;
-  function new(virtual i2c_if i2c_if);
-    super.new(i2c_if);
-    $display("Constructing data_serial test");
-  endfunction
-  virtual task run_test();
+//UVM SYSTEM VERIFICATION TESTS
 
-    for(int i=0; i<4; i++) begin
-      rand_write_data = $urandom_range(0,(2**DATA_WIDTH)-1);
-      i2c_tb_env0.env_run();
-      write_data(rand_write_data,i);
-      read_data(i);
-    end
-    #500;
-  endtask
-endclass
-
-class i2c_single_test extends i2c_base_test;
-  function new(virtual i2c_if i2c_if);
-    super.new(i2c_if);
-    $display("Constructing data_single test");
+class uvm_i2c_system_coherency_test extends uvm_i2c_base_test;
+  
+    `uvm_component_utils(uvm_i2c_system_coherency_test)
+    uvm_i2c_client_agent_configuration client_cfg;
+  
+  uvm_i2c_sequence_system_coherency uvm_i2c_seq0;
+  //uvm_i2c_sequence_multiple_write uvm_i2c_seq1;
+  
+  function new(string name = "uvm_i2c_system_coherency_test", uvm_component parent = null);
+    super.new(name, parent);
+    `uvm_info(this.get_name(), "UVM Constructing I2C SYSTEM COHERENCY test", UVM_NONE)
   endfunction
-  virtual task run_test();
-      i2c_tb_env0.env_run();
-    write_data(8'hCA,8'h00);
-    read_data(8'h00);
-    #500;
+
+  function void build_phase(uvm_phase phase);
+    client_cfg = uvm_i2c_client_agent_configuration::type_id::create("client_cfg", this);
+    client_cfg.active_or_passive = UVM_PASSIVE;
+    uvm_config_db#(uvm_i2c_client_agent_configuration)::set(this, "*", "uvm_i2c_client_agent_configuration", client_cfg);
+    
+    uvm_i2c_env0 = uvm_i2c_env::type_id::create("uvm_i2c_env0", this);
+    uvm_i2c_client_env0 = uvm_i2_client_env::type_id::create("uvm_i2c_client_env0", this);
+    `uvm_info(this.get_name(), "UVM I2C SYSTEM COHERENCY Test Alive", UVM_NONE)
+  endfunction
+  
+  virtual task main_phase(uvm_phase phase);
+   // super.main_phase(phase);
+    phase.raise_objection(this);
+    `uvm_info(this.get_name(), "Running run-main phase", UVM_NONE)
+    #1000;
+    
+    `uvm_info(this.get_name(), "Creating uvm_i2c_seq0", UVM_NONE)
+    uvm_i2c_seq0 =  uvm_i2c_sequence_system_coherency::type_id::create("uvm_i2c_seq0");
+    
+    uvm_i2c_seq0.start(uvm_i2c_env0.uvm_i2c_agent0.uvm_i2c_sequencer0);
+    
+    `uvm_info(this.get_name(), "Ending run-main phase", UVM_NONE)
+    phase.drop_objection(this);
   endtask
-endclass
-*/
+  
+endclass : uvm_i2c_system_coherency_test
+
+

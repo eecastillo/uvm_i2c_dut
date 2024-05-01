@@ -40,6 +40,7 @@ parameter  MEM_SIZE			   =   8;
 `include "i2c_sequences.sv"
 `include "i2c_client_monitor.sv"
 //`include "i2c_client_sequencer.sv"
+`include "configuration.sv"
 `include "i2c_client_agent.sv"
 `include "i2c_tb_env.sv"
 `include "i2c_client_env.sv"
@@ -83,12 +84,12 @@ i2c_master(
 
   pullup pullup_sda(i2c_if0.sda); // pullup sda line
 
- /*
+
 i2c_client i2c_client(
   .scl(i2c_if0.scl),
   .sda(i2c_if0.sda)
 );
-*/
+
 
   initial begin
     `uvm_info("TB-top", $sformatf("Running TB with parameter ADDRESS_WIDTH = %0d",ADDRESS_WIDTH),UVM_NONE)

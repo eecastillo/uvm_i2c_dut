@@ -114,3 +114,32 @@ class uvm_i2c_sequence_software_reset extends uvm_i2c_sequence #(i2c_req_transfe
     })
   endtask
 endclass : uvm_i2c_sequence_software_reset
+
+
+class uvm_i2c_sequence_system_coherency extends uvm_i2c_sequence #(i2c_req_transfer);
+  `uvm_object_utils(uvm_i2c_sequence_system_coherency)
+  rand bit [REGISTER_WIDTH-1:0] reg_address;  
+  function new (string name="uvm_i2c_sequence_system_coherency");
+    super.new(name);
+  endfunction
+  
+  constraint reg_address_con {
+    reg_address inside {[0:MEM_SIZE-1]};
+  }
+  
+  
+  task body();
+    `uvm_info(this.get_name(), "Running I2C SYTEM COHERENCY sequence body", UVM_NONE)
+    this.randomize();    
+    `uvm_do_with(req, {
+      seq_action == WRITE_DATA;
+      device_address == 7'b001_0001;
+      address == reg_address;
+    })
+    `uvm_do_with(req, {
+      seq_action == READ_DATA;
+      device_address == 7'b001_0001;
+      address == reg_address;
+    })
+  endtask
+endclass : uvm_i2c_sequence_system_coherency

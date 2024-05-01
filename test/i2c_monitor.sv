@@ -88,7 +88,7 @@ class uvm_i2c_monitor extends uvm_monitor;
         sr=0;
         //`uvm_info(this.get_name(), "SDA NEGEDGE DETECTED", UVM_LOW)
         if(i2c_vif.scl)begin
-          `uvm_info(this.get_name(), "Start Condition detected by monitor", UVM_DEBUG) 
+          `uvm_info(this.get_name(), "Start Condition detected by monitor", UVM_HIGH) 
           uvm_report_info("i2c-trk","Start Condition detected by monitor",UVM_NONE,"i2c_trk.log");
           started = 1'b1;
         end
@@ -122,7 +122,7 @@ class uvm_i2c_monitor extends uvm_monitor;
       for (int i = 0; i<i_frame;i++)begin
         @(posedge i2c_vif.scl)
         sr = #1 {sr[STREAM_WIDTH-2:0],i2c_vif.sda};
-        `uvm_info(this.get_name(), $sformatf("Data read from SDA %0b",sr), UVM_DEBUG); 
+        `uvm_info(this.get_name(), $sformatf("Data read from SDA %0b",sr), UVM_HIGH); 
       end
       /*
       if(i2c_vif.read_write)
@@ -142,7 +142,7 @@ class uvm_i2c_monitor extends uvm_monitor;
         //`uvm_info(this.get_name(),"Waitin for posedge", UVM_LOG);
           @(posedge i2c_vif.scl)
         sr = #1 {sr[33:0],i2c_vif.sda};
-        `uvm_info(this.get_name(), $sformatf("Data read from SDA %0b",sr), UVM_DEBUG);      
+        `uvm_info(this.get_name(), $sformatf("Data read from SDA %0b",sr), UVM_HIGH);      
         end
     endtask
     
@@ -176,14 +176,14 @@ class uvm_i2c_monitor extends uvm_monitor;
     if (i2c_vif.read_write==1) begin
       //update_pkt();
       `uvm_info(this.get_name(),"Master Read", UVM_NONE)
-      `uvm_info(this.get_name(), $sformatf("Data read monitor 0x%0h",i2c_vif.miso_data), UVM_DEBUG);
+      `uvm_info(this.get_name(), $sformatf("Data read monitor 0x%0h",i2c_vif.miso_data), UVM_HIGH);
     end
     
     if (i2c_vif.read_write==0) begin
      // update_pkt();
       `uvm_info(this.get_name(),"Master Write", UVM_NONE);
-      `uvm_info(this.get_name(),$sformatf("Data read monitor 0x%0h",i2c_vif.mosi_data),UVM_DEBUG);
-      `uvm_info(this.get_name, $sformatf("Direction read monitor 0x%0h",i2c_vif.register_address), UVM_DEBUG);
+      `uvm_info(this.get_name(),$sformatf("Data read monitor 0x%0h",i2c_vif.mosi_data),UVM_HIGH);
+      `uvm_info(this.get_name, $sformatf("Direction read monitor 0x%0h",i2c_vif.register_address), UVM_HIGH);
 
     end
   endtask    
