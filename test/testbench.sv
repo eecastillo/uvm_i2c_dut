@@ -38,6 +38,7 @@ parameter  MEM_SIZE			   =   8;
 //`include "i2c_client_sequencer.sv"
 `include "i2c_checker.sv"
 `include "i2c_sequences.sv"
+`include "i2c_client_checker.sv"
 `include "i2c_client_monitor.sv"
 //`include "i2c_client_sequencer.sv"
 `include "configuration.sv"

@@ -1,5 +1,5 @@
 class uvm_i2c_client_agent extends uvm_agent;
-  uvm_blocking_put_port #(i2c_txn) i2c_agent_client_mon_put_port;
+  uvm_blocking_put_port #(i2c_client_txn) i2c_agent_client_mon_put_port;
   
   `uvm_component_utils(uvm_i2c_client_agent)
   

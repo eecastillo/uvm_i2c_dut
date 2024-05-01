@@ -86,7 +86,7 @@ module i2c_client (scl, sda);
     wire debug = 1'b1;
     genvar i;
 
-    reg [7:0] mem [3:0]; // initiate memory
+  reg [7:0] mem [MEM_SIZE-1:0]; // initiate memory
   	//reg [7:0] mem [REGISTER_WIDTH-1:0];
     initial begin
       mem[0] = 8'd05;

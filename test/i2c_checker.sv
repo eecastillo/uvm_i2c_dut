@@ -82,16 +82,6 @@ class uvm_i2c_scoreboard extends uvm_scoreboard;
       else
         `uvm_error(this.get_name(), $sformatf("reference=%0b does not match actual=%0b",i2c_txn_ref.send_stream, real_i2c_txn.send_stream))
 
-    //end
-    
-    /*if (read_write==1) begin
-      if (mem_ref[register_address] != miso_data_real) begin
-        $display("ERROR @(%0t): miso_data_ref=%0h does not match miso_data_real=0x%1h", $time, mem_ref[register_address], miso_data_real);
-      end
-      if (mem_ref[register_address] == miso_data_real) begin
-        $display("[I1C-CHK]: miso_data_ref=0x%0h match miso_data_real=0x%1h", mem_ref[register_address], miso_data_real);
-      end
-    end*/
   endfunction
 endclass
         
@@ -132,47 +122,3 @@ class uvm_i2c_scoreboard_software_reset extends uvm_i2c_scoreboard;
     i2c_txn_ref.send_stream = {8'b0,ACK_VALUE, 8'b00000110,ACK_VALUE};
   endfunction
 endclass
-
-//para el checker vamos a suponer que al inicio todas las localidades de memoria se encuentran en 0
-/*
-class i2c_checker;
-  logic [DATA_WIDTH-1:0] mem_ref [(2**REGISTER_WIDTH)-1:0];
-  mailbox #(i2c_pkt) mbox_i2c_ptr;
-  
-  i2c_pkt i2c_pkt_chk;
-  
-  function new(mailbox #(i2c_pkt) mbox_i2c_env);
-    $display("[I2C-CHK] %0t - created sr_check", $time);
-    this.mbox_i2c_ptr = mbox_i2c_env;
-  endfunction
-  
-  task run_checker();
-  	forever begin
-      mbox_i2c_ptr.get(i2c_pkt_chk);
-      gen_i2c_ref(i2c_pkt_chk.mosi_data,i2c_pkt_chk.register_address,i2c_pkt_chk.read_write);
-      check_i2c(i2c_pkt_chk.miso_data,i2c_pkt_chk.register_address,i2c_pkt_chk.read_write);
-    end
-  endtask
-  
-  function gen_i2c_ref(logic [DATA_WIDTH-1:0] data_to_write, logic [REGISTER_WIDTH-1:0]    register_address, logic read_write);
-    if (read_write==0) begin
-    	$display("Generating reference");
-    	mem_ref[register_address] = data_to_write;
-      $display("[I2C_CHEK]: data=%0h address=0x%1h",data_to_write, register_address);
-      $display("[I2C_CHEK]: data mem=%0h",mem_ref[register_address]);
-    end
-  endfunction
-  
-  function check_i2c(logic [DATA_WIDTH-1:0] miso_data_real ,logic [REGISTER_WIDTH-1:0]    register_address, logic read_write);
-    if (read_write==1) begin
-      if (mem_ref[register_address] != miso_data_real) begin
-        $display("ERROR @(%0t): miso_data_ref=%0h does not match miso_data_real=0x%1h", $time, mem_ref[register_address], miso_data_real);
-      end
-      if (mem_ref[register_address] == miso_data_real) begin
-        $display("[I1C-CHK]: miso_data_ref=0x%0h match miso_data_real=0x%1h", mem_ref[register_address], miso_data_real);
-      end
-    end
-  endfunction
-  
-endclass
-*/
