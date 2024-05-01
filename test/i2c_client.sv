@@ -67,12 +67,14 @@
 //               Added headers.
 //
 
-module i2c_client (scl, sda);
+module i2c_client#(
+	parameter I2C_ADR = 7'b001_0001
+) (scl, sda);
 
     //
     // parameters
     //
-    parameter I2C_ADR = 7'b001_0001;
+    //parameter I2C_ADR = 7'b001_0001;
 
     //
     // input && outpus

@@ -24,7 +24,7 @@ class uvm_i2c_monitor extends uvm_monitor;
   
   task run_phase (uvm_phase phase);
     super.run_phase(phase);
-    forever begin
+  //  forever begin
       fork
       //  wait_for_reset();
        //wait_for_master_enable();
@@ -33,11 +33,25 @@ class uvm_i2c_monitor extends uvm_monitor;
       sniff_i2c_frame();
       wait_for_stop_condition();
        // wait_for_master_busy();
+        
+      //  shift_register();
+        //compare_address();
+        //**bit_counter();
+        //**access_done();
+        //**sda_delay_assign();
+        //**detect_start();
+        //**d_sta_assign();
+        //**detect_stop();
+        //**generate_rst_signal();
+        //**state_machine();
+        //**data_memory_read();
+        //tri_state_generation();
+      //  tri_state_generation_n();
       join
-    end
+   // end
   endtask
 
-    task update_pkt();
+    task update_pkt(logic [STREAM_WIDTH-1:0] data_stream);
   	fork
       begin
         mon_i2c_txn = i2c_txn::type_id::create("mon_i2c_txn");
@@ -48,7 +62,7 @@ class uvm_i2c_monitor extends uvm_monitor;
         mon_i2c_txn.mosi_data = i2c_vif.mosi_data;
         mon_i2c_txn.register_address = i2c_vif.register_address;
         mon_i2c_txn.device_address = i2c_vif.device_address;
-        mon_i2c_txn.send_stream = sr;
+        mon_i2c_txn.send_stream = data_stream;
         //mon_i2c_txn.divider = i2c_vif.divider;
         //mon_i2c_txn.busy = i2c_vif.busy;
         //mon_i2c_txn.sda = i2c_vif.sda;
@@ -83,12 +97,16 @@ class uvm_i2c_monitor extends uvm_monitor;
     endtask
     
     task wait_for_start_condition();
-      if(!started)begin
-        @(negedge i2c_vif.sda)
-        sr=0;
+   //   if(!started)begin
+     forever begin
+      	@(negedge i2c_vif.sda)
+        
         //`uvm_info(this.get_name(), "SDA NEGEDGE DETECTED", UVM_LOW)
         if(i2c_vif.scl)begin
-          `uvm_info(this.get_name(), "Start Condition detected by monitor", UVM_HIGH) 
+          //sr=0;
+          //`uvm_info(this.get_name(), "Start Condition detected by monitor", UVM_HIGH) 
+          `uvm_info(this.get_name(),$sformatf("START condition detected by monitor enable: %0b busy:%0b read_write: %0b",i2c_vif.enable, i2c_vif.busy, i2c_vif.read_write), UVM_HIGH);
+
           uvm_report_info("i2c-trk","Start Condition detected by monitor",UVM_NONE,"i2c_trk.log");
           started = 1'b1;
         end
@@ -96,43 +114,37 @@ class uvm_i2c_monitor extends uvm_monitor;
     endtask
     
     task sniff_i2c_frame();
-      int i_frame=0;
      // int j_frame=0;
-      
-      @(posedge started)
-      
-      if(!i2c_vif.read_write)begin
-        if(DATA_WIDTH == 8)begin
-          i_frame=27;
+      int i_frame=0;
+      forever begin
+        @(posedge started)
+        i_frame=0;
+
+        if(!i2c_vif.read_write)begin
+          if(DATA_WIDTH == 8)begin
+            i_frame=27;
+          end
+          else if(DATA_WIDTH == 16)begin
+            i_frame=36;
+          end
         end
-        else if(DATA_WIDTH == 16)begin
-          i_frame=36;
+
+        else if(i2c_vif.read_write)begin
+          if(DATA_WIDTH == 8)begin
+            i_frame=36;
+          end
+          else if(DATA_WIDTH == 16)begin
+            i_frame=45;
+          end
+        end
+
+        for (int i = 0; i<i_frame;i++)begin
+          @(posedge i2c_vif.scl)
+          sr = #1 {sr[STREAM_WIDTH-2:0],i2c_vif.sda};
+          `uvm_info(this.get_name(), $sformatf("Data read from SDA %0b",sr), UVM_HIGH); 
         end
       end
-      
-      else if(i2c_vif.read_write)begin
-        if(DATA_WIDTH == 8)begin
-          i_frame=36;
-        end
-        else if(DATA_WIDTH == 16)begin
-        	i_frame=45;
-        end
-      end
-      
-      for (int i = 0; i<i_frame;i++)begin
-        @(posedge i2c_vif.scl)
-        sr = #1 {sr[STREAM_WIDTH-2:0],i2c_vif.sda};
-        `uvm_info(this.get_name(), $sformatf("Data read from SDA %0b",sr), UVM_HIGH); 
-      end
-      /*
-      if(i2c_vif.read_write)
-        wait_for_second_start_condition();
-      
-      for (int j = 0; j<j_frame;j++)begin
-        @(posedge i2c_vif.scl)
-        sr = #1 {sr[33:0],i2c_vif.sda};
-        `uvm_info(this.get_name(), $sformatf("Data read from SDA %0b",sr), UVM_LOG); 
-      end*/
+
     endtask
     
     task shift_register();
@@ -147,22 +159,26 @@ class uvm_i2c_monitor extends uvm_monitor;
     endtask
     
     task wait_for_stop_condition();
-      @(posedge started)
+      forever begin
+     // @(posedge started)
       //`uvm_info(this.get_name(), "STARTED POSEDGE DETECTED", UVM_LOW)
-      while(started)begin
+      //while(started)begin
         @(posedge i2c_vif.sda)
         //`uvm_info(this.get_name(), "SDA POSEDGE DETECTED", UVM_LOW)
         if(i2c_vif.scl)begin
           started=1'b0;
-          `uvm_info(this.get_name(), "STOP condition detected by monitor", UVM_HIGH);
+          `uvm_info(this.get_name(),$sformatf("STOP condition detected by monitor enable: %0b busy:%0b",i2c_vif.enable, i2c_vif.busy), UVM_HIGH);
           //uvm_report_info("i2c-trk","STOP Condition detected by monitor",UVM_MEDIUM,"i2c_trk.log");
           //$fdisplay(log_descriptor, "STOP Condition detected by monitor");
-          `uvm_info(this.get_name(), $sformatf("Data read from SDA %0b",sr), UVM_HIGH);
-          update_pkt();
+        //  `uvm_info(this.get_name(), $sformatf("Data read from SDA %0b",sr), UVM_HIGH);
+          if(sr!=0)begin
+            update_pkt(sr);
+            sr=0;
+          end
         end
       end
     endtask
-  
+   
   task wait_for_master_enable();
     @(negedge i2c_vif.clock);
     if (i2c_vif.enable==1) begin

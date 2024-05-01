@@ -86,12 +86,18 @@ i2c_master(
   pullup pullup_sda(i2c_if0.sda); // pullup sda line
 
 
-i2c_client i2c_client(
+  i2c_client #(.I2C_ADR(7'b001_0001)) i2c_client(
   .scl(i2c_if0.scl),
   .sda(i2c_if0.sda)
 );
 
-
+  i2c_client #(.I2C_ADR(7'b001_1001)) i2c_client_2(
+  .scl(i2c_if0.scl),
+  .sda(i2c_if0.sda)
+);
+  
+  
+  
   initial begin
     `uvm_info("TB-top", $sformatf("Running TB with parameter ADDRESS_WIDTH = %0d",ADDRESS_WIDTH),UVM_NONE)
     `uvm_info("TB-top", $sformatf("Running TB with parameter DATA_WIDTH = %0d",DATA_WIDTH),UVM_NONE)

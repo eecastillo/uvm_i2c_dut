@@ -275,3 +275,43 @@ class uvm_i2c_system_coherency_test extends uvm_i2c_base_test;
 endclass : uvm_i2c_system_coherency_test
 
 
+class uvm_i2c_system_multiple_client_test extends uvm_i2c_base_test;
+  
+    `uvm_component_utils(uvm_i2c_system_multiple_client_test)
+    uvm_i2c_client_agent_configuration client_cfg;
+  
+  uvm_i2c_sequence_system_multiple_clients uvm_i2c_seq0;
+  //uvm_i2c_sequence_multiple_write uvm_i2c_seq1;
+  
+  function new(string name = "uvm_i2c_system_multiple_client_test", uvm_component parent = null);
+    super.new(name, parent);
+    `uvm_info(this.get_name(), "UVM Constructing I2C SYSTEM MULTIPLE CLIENT test", UVM_NONE)
+  endfunction
+
+  function void build_phase(uvm_phase phase);
+    client_cfg = uvm_i2c_client_agent_configuration::type_id::create("client_cfg", this);
+    client_cfg.active_or_passive = UVM_PASSIVE;
+    uvm_config_db#(uvm_i2c_client_agent_configuration)::set(this, "*", "uvm_i2c_client_agent_configuration", client_cfg);
+    
+    uvm_i2c_env0 = uvm_i2c_env::type_id::create("uvm_i2c_env0", this);
+    uvm_i2c_client_env0 = uvm_i2_client_env::type_id::create("uvm_i2c_client_env0", this);
+    `uvm_info(this.get_name(), "UVM I2C SYSTEM MULTIPLE CLIENT Test Alive", UVM_NONE)
+  endfunction
+  
+  virtual task main_phase(uvm_phase phase);
+   // super.main_phase(phase);
+    phase.raise_objection(this);
+    `uvm_info(this.get_name(), "Running run-main phase", UVM_NONE)
+    #1000;
+    
+    `uvm_info(this.get_name(), "Creating uvm_i2c_seq0", UVM_NONE)
+    uvm_i2c_seq0 =  uvm_i2c_sequence_system_multiple_clients::type_id::create("uvm_i2c_seq0");
+    
+    uvm_i2c_seq0.start(uvm_i2c_env0.uvm_i2c_agent0.uvm_i2c_sequencer0);
+    
+    `uvm_info(this.get_name(), "Ending run-main phase", UVM_NONE)
+    phase.drop_objection(this);
+  endtask
+  
+endclass : uvm_i2c_system_multiple_client_test
+
