@@ -6,6 +6,10 @@ class uvm_i2c_sequence extends uvm_sequence #(i2c_req_transfer);
     super.new(name);
   endfunction
   
+    constraint actions_con {
+    run_num_actions > 1;
+  }
+  
   task body();
     `uvm_info(this.get_name(), "Running I2C sequence body", UVM_NONE)
     this.randomize();
@@ -51,6 +55,10 @@ class uvm_i2c_sequence_multiple_read extends uvm_i2c_sequence #(i2c_req_transfer
     super.new(name);
   endfunction
   
+  constraint actions_con {
+    run_num_actions > 1;
+  }
+  
   task body();
     `uvm_info(this.get_name(), "Running I2C MULTIPLE READ sequence body", UVM_NONE)
     this.randomize();    
@@ -68,6 +76,10 @@ class uvm_i2c_sequence_multiple_write extends uvm_i2c_sequence #(i2c_req_transfe
   function new (string name="uvm_i2c_sequence_multiple_write");
     super.new(name);
   endfunction
+  
+  constraint actions_con {
+    run_num_actions > 1;
+  }
   
   task body();
     `uvm_info(this.get_name(), "Running I2C MULTIPLE WRITE sequence body", UVM_NONE)
