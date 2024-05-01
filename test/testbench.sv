@@ -23,6 +23,12 @@
 parameter  DATA_WIDTH          =   `MY_DATA_WIDTH;
 parameter  REGISTER_WIDTH      =   8;
 parameter  ADDRESS_WIDTH       =   `MY_ADDRESS_WIDTH;
+parameter  CLIENT_DEVICES       =   `MY_CLIENT_DEVICES;
+parameter [6:0] DEVICE_ADDRESSES [CLIENT_DEVICES-1 : 0]= {
+  																7'b001_0001,
+  																7'b001_1001,
+  																7'b001_0101,
+																7'b001_0011};
 parameter STREAM_WIDTH = (ADDRESS_WIDTH == 10 || DATA_WIDTH == 16) ? 54:(ADDRESS_WIDTH == 7) ? 35:  0;
 parameter  MEM_SIZE			   =   8;
 
@@ -85,7 +91,7 @@ i2c_master(
 
   pullup pullup_sda(i2c_if0.sda); // pullup sda line
 
-
+/*
   i2c_client #(.I2C_ADR(7'b001_0001)) i2c_client(
   .scl(i2c_if0.scl),
   .sda(i2c_if0.sda)
@@ -95,11 +101,19 @@ i2c_master(
   .scl(i2c_if0.scl),
   .sda(i2c_if0.sda)
 );
+  */
   
+  genvar client_index;
+  generate
+    for (client_index=0; client_index<CLIENT_DEVICES ; client_index = client_index + 1) begin
+      i2c_client #(.I2C_ADR(DEVICE_ADDRESSES[client_index])) i2c_client(.scl(i2c_if0.scl),.sda(i2c_if0.sda));
+    end
+  endgenerate
   
   
   initial begin
     `uvm_info("TB-top", $sformatf("Running TB with parameter ADDRESS_WIDTH = %0d",ADDRESS_WIDTH),UVM_NONE)
+    `uvm_info("TB-top", $sformatf("Running TB with parameter CLIENT_DEVICES = %0d",CLIENT_DEVICES),UVM_NONE)
     `uvm_info("TB-top", $sformatf("Running TB with parameter DATA_WIDTH = %0d",DATA_WIDTH),UVM_NONE)
     `uvm_info("TB-top", "setting i2v_vif in config_db", UVM_NONE)
     

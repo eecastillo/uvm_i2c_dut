@@ -95,6 +95,10 @@ module i2c_client#(
       mem[1] = 8'd06;
       mem[2] = 8'd07;
       mem[3] = 8'd08;
+      mem[4] = 8'd09;
+      mem[5] = 8'd10;
+      mem[6] = 8'd11;
+      mem[7] = 8'd12;
     end
 
     reg [7:0] mem_adr;   // memory address
@@ -131,6 +135,7 @@ module i2c_client#(
 
     initial
     begin
+      $display($sformatf("RTL CLIENT STARTING WITH DEVICE ADDRESS %0b",I2C_ADR));
        sda_o = 1'b1;
        state = idle;
     end
@@ -232,7 +237,7 @@ module i2c_client#(
                               if(debug)
                                 begin
                                     #2 $display("DEBUG i2c_slave; data block read %x from address %x (1)", mem_do, mem_adr);
-                                    #2 $display("DEBUG i2c_slave; memcheck [0]=%x, [1]=%x, [2]=%x", mem[4'h0], mem[4'h1], mem[4'h2]);
+                                  #2 $display("DEBUG i2c_slave; memcheck [0]=%x, [1]=%x, [2]=%x, [3]=%x, [4]=%x, [5]=%x, [6]=%x, [7]=%x", mem[4'h0], mem[4'h1], mem[4'h2], mem[4'h3], mem[4'h4], mem[4'h5], mem[4'h6], mem[4'h7]);
                                 end
                           end
                     end

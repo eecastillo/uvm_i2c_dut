@@ -145,34 +145,48 @@ class uvm_i2c_sequence_system_coherency extends uvm_i2c_sequence #(i2c_req_trans
 endclass : uvm_i2c_sequence_system_coherency
 
 class uvm_i2c_sequence_system_multiple_clients extends uvm_i2c_sequence #(i2c_req_transfer);
+  
   `uvm_object_utils(uvm_i2c_sequence_system_multiple_clients)
-  rand bit [REGISTER_WIDTH-1:0] reg_address;  
+  rand bit [REGISTER_WIDTH-1:0] reg_address[4]; 
+  rand bit [1:0] client_device_select[4];
+  rand bit [1:0] run_num_actions;
+
   function new (string name="uvm_i2c_sequence_system_multiple_clients");
     super.new(name);
   endfunction
   
   constraint reg_address_con {
-    reg_address inside {[0:MEM_SIZE-1]};
+//    reg_address inside {[0:MEM_SIZE-1]};
+//    client_device_select < CLIENT_DEVICES;
+    run_num_actions > 1;
   }
-  bit [2:0] run_num_actions =2;
-  logic [6:0] device_addresses = 7'b001_0001;
-//  device_addresses[0] = 7'b001_0001;
-//  device_addresses[1] = 7'b001_1001;
-  
+  constraint array_c { foreach(reg_address[i]) reg_address[i] inside {[0:MEM_SIZE-1]};}
+  constraint array_c2 { foreach(client_device_select[i]) client_device_select[i] < CLIENT_DEVICES;}
+
   task body();
+    
+    this.randomize(); 
+
     `uvm_info(this.get_name(), "Running I2C SYTEM MULTIPLE CLIENTS sequence body", UVM_NONE)
+    `uvm_info(this.get_name(), $sformatf("Running %0d xactions",run_num_actions), UVM_NONE)
     
     for (int action_n=0; action_n<run_num_actions; action_n++) begin
-      this.randomize();    
+      `uvm_info(this.get_name(), $sformatf("Client device selected %0b",client_device_select[action_n]), UVM_NONE)
+      `uvm_info(this.get_name(), $sformatf("Register address selected %0b",reg_address[action_n]), UVM_NONE)
       `uvm_do_with(req, {
         seq_action == WRITE_DATA;
-        device_address == device_addresses;//[action_n];
-        address == reg_address;
+        device_address == DEVICE_ADDRESSES[client_device_select[action_n]];//[action_n];
+        address == reg_address[action_n];
       })
+    end
+    
+    for (int action_n=0; action_n<run_num_actions; action_n++) begin
+      `uvm_info(this.get_name(), $sformatf("Client device selected %0b",client_device_select[action_n]), UVM_NONE)
+      `uvm_info(this.get_name(), $sformatf("Register address selected %0b",reg_address[action_n]), UVM_NONE)
       `uvm_do_with(req, {
         seq_action == READ_DATA;
-        device_address == device_addresses;//[action_n];
-        address == reg_address;
+        device_address == DEVICE_ADDRESSES[client_device_select[action_n]];
+        address == reg_address[action_n];
       })
     end
 
