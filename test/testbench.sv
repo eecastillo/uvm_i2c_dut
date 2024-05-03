@@ -66,6 +66,7 @@ reg             clock           =   0;
 
 
   i2c_if #(.DATA_WIDTH(DATA_WIDTH), .REGISTER_WIDTH(REGISTER_WIDTH), .ADDRESS_WIDTH(ADDRESS_WIDTH)) i2c_if0 (clock);
+  i2c_if #(.DATA_WIDTH(DATA_WIDTH), .REGISTER_WIDTH(REGISTER_WIDTH), .ADDRESS_WIDTH(ADDRESS_WIDTH)) i2c_if1 (clock);
   
 i2c_master #(.DATA_WIDTH(DATA_WIDTH),.REGISTER_WIDTH(REGISTER_WIDTH),.ADDRESS_WIDTH(ADDRESS_WIDTH))
 i2c_master(
@@ -84,6 +85,26 @@ i2c_master(
   .external_serial_data   (i2c_if0.sda),
   .external_serial_clock  (i2c_if0.scl)
 );
+  
+  
+i2c_master #(.DATA_WIDTH(DATA_WIDTH),.REGISTER_WIDTH(REGISTER_WIDTH),.ADDRESS_WIDTH(ADDRESS_WIDTH))
+i2c_master_2(
+  .clock                  (clock),
+  .reset_n                (i2c_if1.reset_n),
+  .enable                 (i2c_if1.enable),
+  .read_write             (i2c_if1.read_write),
+  .mosi_data              (i2c_if1.mosi_data),
+  .register_address       (i2c_if1.register_address),
+  .device_address         (i2c_if1.device_address),
+
+  .divider                (i2c_if1.divider),
+  .miso_data              (i2c_if1.miso_data),
+  .busy                   (i2c_if1.busy),
+
+  .external_serial_data   (i2c_if0.sda),
+  .external_serial_clock  (i2c_if0.scl)
+);
+  
 
   //i2c_base_test i2c_base_test0;
 
@@ -119,7 +140,7 @@ i2c_master(
     
     uvm_config_db #(virtual i2c_if)::set(null, "uvm_test_top.uvm_i2c_env0*", "i2c_vif", i2c_if0);
     uvm_config_db #(virtual i2c_if)::set(null, "uvm_test_top.uvm_i2c_client_env0*", "i2c_vif", i2c_if0);
-
+    uvm_config_db #(virtual i2c_if)::set(null, "uvm_test_top.uvm_i2c_env_second_host*", "i2c_vif", i2c_if1);
     
     run_test();
     #2000 $stop();

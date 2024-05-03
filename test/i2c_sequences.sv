@@ -192,3 +192,39 @@ class uvm_i2c_sequence_system_multiple_clients extends uvm_i2c_sequence #(i2c_re
 
   endtask
 endclass : uvm_i2c_sequence_system_multiple_clients
+
+
+class uvm_i2c_sequence_system_multiple_hosts extends uvm_i2c_sequence #(i2c_req_transfer);
+  `uvm_object_utils(uvm_i2c_sequence_system_multiple_hosts)
+  rand bit [REGISTER_WIDTH-1:0] reg_address;  
+  rand bit [1:0] client_device_select[4];
+  
+  
+  function new (string name="uvm_i2c_sequence_system_multiple_hosts");
+    super.new(name);
+  endfunction
+  
+  constraint reg_address_con {
+    reg_address inside {[0:MEM_SIZE-1]};
+  }
+  constraint array_c2 { foreach(client_device_select[i]) client_device_select[i] < CLIENT_DEVICES;}
+
+  
+  task body();
+    `uvm_info(this.get_name(), "Running I2C SYTEM MULTIPLE HOSTS sequence body", UVM_NONE)
+    this.randomize();    
+    `uvm_do_with(req, {
+      seq_action == WRITE_DATA;
+      device_address == DEVICE_ADDRESSES[client_device_select[0]];
+      address == reg_address;
+    })
+    `uvm_do_with(req, {
+      seq_action == READ_DATA;
+      device_address == DEVICE_ADDRESSES[client_device_select[0]];
+      address == reg_address;
+    })
+  endtask
+endclass : uvm_i2c_sequence_system_multiple_hosts
+
+
+
